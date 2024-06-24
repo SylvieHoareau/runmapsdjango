@@ -16,10 +16,20 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
+    <style>
+      .legend span {
+        display: inline-block;
+        width: 2.5rem;
+        height: 1.25rem;
+        margin-right: 5px;
+        border: 1px solid black;
+      }
+    </style>
   </head>
   <body>
     <h1>Carte des sentiers de randonnées à La Réunion</h1>
     <div id="map" style="height: 600px"></div>
+    <p>Source : Les principaux circuits de randonnées de La Réunion - SOUBIK - Système d'Information Touristique (SIT) de l'île de La Réunion </p>
 
     <!--Debug : Afficher les données JSON-->
     <pre>{{ data|safe }}</pre>
@@ -87,6 +97,52 @@
           console.log('Coordonnées invalides pour la randonnée :', rando);
         }
       });
+
+      // Ajouter la légende à la carte
+      var legend = L.control({position: 'bottomright'});
+
+      legend.onAdd = function (map) {
+        var div = L.DomUtil.create('div', 'info legend');
+        var grades = ['1', '2', '3', '4'];
+        var labels = ['<strong>Difficulté</strong>'];
+
+        grades.forEach((grade) => {
+          let color;
+          let level;
+          switch (grade) {
+            case '1':
+              color = 'green'; // Facile
+              level = 'facile';
+              break;
+            case '2':
+              color = 'orange'; // Moyenne
+              level = 'moyenne';
+              break;
+            case '3':
+              color = 'red'; // Difficile
+              level = 'difficile';
+              break;
+            case '4':
+              color = 'black'; // Très difficile
+              level = 'très difficile';
+              break;
+            default:
+              color = 'blue'; // Autre
+              level = 'autre';
+          }
+
+          var icon = getMarkerIcon(grade);
+
+          labels.push(
+            '<span style="background-color:' + color + ' ;"></span>' + grade + " " + level
+          );
+        });
+
+        div.innerHTML = labels.join('<br>');
+        return div;
+      }
+
+      legend.addTo(map);
 
     </script>
    
