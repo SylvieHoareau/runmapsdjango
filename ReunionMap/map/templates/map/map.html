@@ -70,8 +70,8 @@
 
       // Ajouter les points de randonnées sur la carte
       data.forEach((rando) => {
-        if (rando.location.lat && rando.location.lon) {
-          var marker = L.marker([rando.location.lat, rando.location.lon], { idon: getMarkerIcon(rando.difficulte)});
+        if (rando.location && rando.location.lat && rando.location.lon) {
+          var marker = L.marker([rando.location.lat, rando.location.lon], { icon: getMarkerIcon(rando.difficulte)});
           marker.addTo(map);
 
           // Popup associé au marqueur
@@ -83,6 +83,8 @@
                             'Altitude min: '+ rando.altitude_min + " m<br>" +
                             'Altitude max: ' + rando.altitude_max + ' m<br>' +
                             'Ouvert: ' + rando.is_ouvert);
+        } else {
+          console.log('Coordonnées invalides pour la randonnée :', rando);
         }
       });
 
