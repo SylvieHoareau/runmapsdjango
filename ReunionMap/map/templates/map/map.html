@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carte de La Réunion</title>
+    <!--Leaflet-->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+  </head>
+  <body>
+    <div id="map" style="height: 600px"></div>
+    <script>
+      var map = L.map('map').setView([-21.115141, 55.536384], 10);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 18,
+      }).addTo(map);
+
+      var points = JSON.parse('{{ points|escapejs }}');
+
+      points.array.forEach((point) => {
+          L.marker([point.latitude, point.longitude])
+              .addTo(map)
+              .bindPopup('<b>' + point.name + '</b>< br />' + point.description);
+      });
+    </script>
+  </body>
+</html>
