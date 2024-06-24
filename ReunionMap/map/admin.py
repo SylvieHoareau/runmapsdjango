@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PointOfInterest
+from .models import Randonnee
 
 # Register your models here.
-admin.site.register(PointOfInterest)
+admin.site.register(Randonnee)

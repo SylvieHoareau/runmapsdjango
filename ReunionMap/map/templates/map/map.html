@@ -18,7 +18,17 @@
     ></script>
   </head>
   <body>
+    <h1>Carte des sentiers de randonnées à La Réunion</h1>
     <div id="map" style="height: 600px"></div>
+
+    <!--Debug : Afficher les données JSON-->
+    <pre>{{ data|safe }}</pre>
+
+    <!--Incorporer les données JSON dans un script-->
+    <script id="data-json" type="application/json">
+      {{ data|safe }}
+    </script>
+
     <script>
       var map = L.map('map').setView([-21.115141, 55.536384], 10);
 
@@ -26,13 +36,57 @@
           maxZoom: 18,
       }).addTo(map);
 
-      var points = JSON.parse('{{ points|escapejs }}');
+      // Données des randonnées passées par Django
+      var dataElement = document.querySelector('#data-json');
+      var data = JSON.parse(dataElement.textContent);
 
-      points.array.forEach((point) => {
-          L.marker([point.latitude, point.longitude])
-              .addTo(map)
-              .bindPopup('<b>' + point.name + '</b>< br />' + point.description);
+      // Définir des icônes personnalisées en fonction de la difficulté
+      const getMarkerIcon = (difficulty) => {
+        let color;
+        switch (difficulty) {
+          case '1':
+            color = 'green'; // Facile
+            break;
+          case '2':
+            color = 'orange'; // Moyenne
+            break;
+          case '3':
+            color = 'red'; // Difficile
+            break;
+          case '4':
+            color = 'black'; // Très difficile
+            break;
+          default:
+            color = 'blue'; // Autre
+        }
+      return L.icon({
+        iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-' + color + '.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      })
+    }
+
+      // Ajouter les points de randonnées sur la carte
+      data.forEach((rando) => {
+        if (rando.location.lat && rando.location.lon) {
+          var marker = L.marker([rando.location.lat, rando.location.lon], { idon: getMarkerIcon(rando.difficulte)});
+          marker.addTo(map);
+
+          // Popup associé au marqueur
+          marker.bindPopup('<b>' + rando.nom + '</b><br>'+
+                            'Difficulté: ' + rando.difficulte + '<br>' +
+                            'Distance: ' + rando.distance_parcourue + ' km<br>' +
+                            'Durée: ' + rando.duree_minutes_total + ' min<br>' +
+                            'Zone: ' + rando.zone_translations_item_nom + '<br>' + 
+                            'Altitude min: '+ rando.altitude_min + " m<br>" +
+                            'Altitude max: ' + rando.altitude_max + ' m<br>' +
+                            'Ouvert: ' + rando.is_ouvert);
+        }
       });
+
     </script>
+   
   </body>
 </html>
