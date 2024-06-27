@@ -16,6 +16,7 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
       .legend span {
         display: inline-block;
@@ -27,13 +28,23 @@
     </style>
   </head>
   <body>
-    <h1>Carte des sentiers de randonnées à La Réunion</h1>
-    <div id="map" style="height: 600px"></div>
-    <p>Source : Les principaux circuits de randonnées de La Réunion - SOUBIK - Système d'Information Touristique (SIT) de l'île de La Réunion </p>
-
-    <!--Debug : Afficher les données JSON-->
-    <pre>{{ data|safe }}</pre>
-
+    <nav class="bg-green-200 flex flex-col md:flex-row p-4 shadow-md" role="navigation" aria-label="main navigation">
+      <h1 class="text-xl">Atlas de la forêt | La Réunion</h1>
+      <div class=" cflex flex-col mb:flex-row mt-2 md:mt-0">
+        <a href="{% url 'index' %}" class="mt-2 md:mt-0 md:ml-4 text-blue-700 hover:underline focus:underline">Accueil</a>
+        <a href="{% url 'forest' %}" class="mt-2 md:mt-0 md:ml-4 text-blue-700 hover:underline focus:underline">Domaine forestier</a>
+        <a href="{% url 'rando' %}" class="mt-2 md:mt-0 md:ml-4 text-blue-700 hover:underline focus:underline">Randonnées</a>
+      </div>
+    </nav>
+    <main>
+      <h1>Carte des sentiers de randonnées à La Réunion</h1>
+      <div id="map" style="height: 600px"></div>
+      <p>Source : Les principaux circuits de randonnées de La Réunion - SOUBIK - Système d'Information Touristique (SIT) de l'île de La Réunion </p>
+  
+      <!--Debug : Afficher les données JSON-->
+      <pre>{{ data|safe }}</pre>
+    </main>
+  
     <!--Incorporer les données JSON dans un script-->
     <script id="data-json" type="application/json">
       {{ data|safe }}

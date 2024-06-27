@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carte de La Réunion</title>
+    <!--Leaflet-->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .legend span {
+        display: inline-block;
+        width: 2.5rem;
+        height: 1.25rem;
+        margin-right: 5px;
+        border: 1px solid black;
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+        box-shadow: 1.25rem 1.25rem lightblue;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-200">
+    <nav class="bg-green-200 flex flex-col md:flex-row p-4 shadow-md" role="navigation" aria-label="main navigation">
+      <h1 class="text-xl">Atlas de la forêt | La Réunion</h1>
+      <div class=" cflex flex-col mb:flex-row mt-2 md:mt-0">
+        <a href="{% url 'index' %}" class="mt-2 md:mt-0 md:ml-4 text-blue-700 hover:underline focus:underline">Accueil</a>
+        <a href="{% url 'forest' %}" class="mt-2 md:mt-0 md:ml-4 text-blue-700 hover:underline focus:underline">Domaine forestier</a>
+        <a href="{% url 'rando' %}" class="mt-2 md:mt-0 md:ml-4 text-blue-700 hover:underline focus:underline">Randonnées</a>
+      </div>
+    </nav>
+    
+    <main class="flex flex-col items-center">
+      <h1 class="text-2xl mt-4">Atlas des forêts à La Réunion</h1>
+      <!--Section principale-->
+      <section class="flex flex-col md:flex-row items-center w-full">
+        <!--Section pour afficher la liste des cartes-->
+        <section class="w-full md:w-1/3">
+          <section id="card" class="flex flex-col p-4 m-4 bg-white shadow-lg">
+            <div id="card-head">
+              <h2 class="text-lg p-2">Domaine forestier</h2>
+            </div>
+            <div id="card-body">
+              <p>Carte du domaine forestier de La Réunion</p>
+              <div class="bg-gray-500 w-24 h-24 p-4 m-4 flex items-center justify-center" role="img" aria-label="Image de la forêt" >
+                <p>Image</p>
+              </div>
+              <button class="bg-green-700 p-4 rounded tex-white hover:bg-green-800 focus:bg-green-900">
+                <a href="{% url 'forest' %}">Voir</a>
+              </button>
+            </div>
+          </section>
+          <section class="flex flex-col p-4 m-4 bg-white shadow-lg">
+            <div id="card-head">
+              <h2 class="text-lg p-2">Randonnées</h2>
+            </div>
+            <div id="card-body">
+              <div class="bg-gray-500 w-24 h-24 p-4 m-4 flex items-center justify-center" role="img" aria-label="Image de la forêt" >
+                <p>Image</p>
+              </div>
+              <p>Carte des circuits de randonnées de La Réunion classées par niveau de difficultés</p>
+              <button  class="bg-green-700 p-4 rounded tex-white hover:bg-green-800 focus:bg-green-900">
+                <a href="{% url 'rando' %}">Voir</a>
+              </button>
+            </div>
+          </section>
+        </section>
+        <!--Section pour afficher la carte quand l'utilisateur appuie sur le bouton "Voir"-->
+        <section class="w-full md:w-2/3 bg-white shadow-lg mt-4 md:mt-0">
+          <div class="p-4">
+            <p>La carte s'affiche ici</p>
+          </div>
+        </section>
+      </section>
+      
+    </main>
+   
+  </body>
+</html>

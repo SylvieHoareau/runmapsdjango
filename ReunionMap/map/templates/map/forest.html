@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domaine forestier</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <nav class="bg-green-200 flex flex-col md:flex-row p-4 shadow-md" role="navigation" aria-label="main navigation">
+        <h1 class="text-xl">Atlas de la forêt | La Réunion</h1>
+        <div class=" cflex flex-col mb:flex-row mt-2 md:mt-0">
+          <a href="{% url 'index' %}" class="mt-2 md:mt-0 md:ml-4 text-blue-700 hover:underline focus:underline">Accueil</a>
+          <a href="{% url 'forest' %}" class="mt-2 md:mt-0 md:ml-4 text-blue-700 hover:underline focus:underline">Domaine forestier</a>
+          <a href="{% url 'rando' %}" class="mt-2 md:mt-0 md:ml-4 text-blue-700 hover:underline focus:underline">Randonnées</a>
+        </div>
+      </nav>
+    <main>
+
+    </main>
+</body>
+</html>

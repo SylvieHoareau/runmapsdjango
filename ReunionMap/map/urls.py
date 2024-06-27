@@ -4,5 +4,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.map_view, name='map')
+    path('', views.index_view, name='index'),
+    path('forest/', views.forest_view, name='forest'),
+    path('rando/', views.rando_view, name='rando'),
+    path('natura/', views.rando_view, name='natura')
 ]
