@@ -73,6 +73,8 @@ def forest_view(request):
                         <ogc: PropertyName>code_insee</PropertyName>
                         <ogc: Literal>974</Literal>
                     </ogc:PropertyIsEqualTo>
+                    <ogc:PropertyIsBetween>
+                    </ogc:PropertyIsBetween>
                 </ogc:Filter>
             </wfs:Query>
         </wfs:GetFeature>
