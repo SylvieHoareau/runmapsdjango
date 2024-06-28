@@ -5,6 +5,8 @@ from django.shortcuts import render
 from .models import Randonnee, ForetPublique
 from django.core.serializers import serialize
 from django.http import JsonResponse
+from django.contrib.gis.geos import Polygon, MultiPolygon
+import xml.etree.ElementTree as ET
 
 # Create your views here.
 
@@ -93,7 +95,7 @@ def forest_view(request):
     # return render(request, 'map/map.html', {'data': data})
 
     # Récupérer les randonnées depuis le modèle Randonnée
-    forests = Forest.objects.all()
+    forests = ForetPublique.objects.all()
     forests_data = list(forests.values())
 
     # Ajouter les données de l'API aux données du modèle Randonnee
@@ -104,25 +106,63 @@ def forest_view(request):
 
     return render(request, 'map/forest.html',  { 'data': combined_data_json})
 
-def parse_forest_data(xml_data):
-    if not xml_data:
+def parse_xml_and_save_to_db(xml_file_path):
+    if not xml_file_path:
         return []
     
-    tree = ET.ElementTree(ET.formstring(xml_data))
+    tree = ET.parse(xml_file_path)
     root = tree.getRoot()
 
-    namespace = {'wfs': 'http://www.opengis.net/wf/2.0', 'gml': 'http://www.opengis/gml/3.2'}
+    namespaces = {
+        'wfs': 'http://www.opengis.net/wf/2.0', 
+        'gml': 'http://www.opengis/gml/3.2',
+        'BDTOPO_V3': 'https://data.geopf.fr/wfs/ows?SERVICE=WFS&TYPENAMES=BDTOPO_V3:foret_publique&REQUEST=GetFeature&VERSION=2.0.0'
+    }
 
-    features = root.findall('.//wfs:member', namespace)
-    forests = []
+    for member in root.findall('wfs:member', namespaces):
+        foret = member.find('BDTOPO_V3:foret_publique', namespaces)
 
-    for feature in features:
-        forest = {}
-        properties = feature.find('.//BDTOPO_V3:foret_publique', namespace)
-        if properties is not None:
-            for prop in properties:
-                tag = prop.tag.split('}')[-1]
-                forest[tag] = prop.text
-            forests.append(forest)
-    
-    return forests
+        cleabs = foret.find('BDTOPO_V3:cleabs', namespaces).text
+        nature = foret.find('BDTOPO_V3:nature', namespaces).text
+        toponyme = foret.find('BDTOPO_V3:toponyme', namespaces).text
+        statut_du_toponyme = foret.find('BDTOPO_V3:statut_du_toponyme', namespaces).text
+        importance = int(foret.find('BDTOPO_V3:importance', namespaces).text)
+        date_creation = foret.find('BDTOPO_V3:date_creation', namespaces).text
+        date_modification = foret.find('BDTOPO_V3:date_modification', namespaces).text
+        date_de_confirmation = foret.find('BDTOPO_V3:date_de_confirmation', namespaces).text
+        sources = foret.find('BDTOPO_V3:sources', namespaces).text
+        identifiants_sources = foret.find('BDTOPO_V3:identifiants_sources', namespaces).text
+        methode_d_acquisition_planimetrique = foret.find('BDTOPO_V3:methode_d_acquisition_planimetrique', namespaces).text
+        precision_planimetrique = float(foret.find('BDTOPO_V3:precision_planimetrique', namespaces).text)
+
+        # Geometrie
+        multi_surface = foret.find('.//gml:MultiSurface', namespaces)
+        surfaces = []
+
+        for surface_member in multi_surface.findall('gml:surfaceMember', namespaces):
+            polygon = surface_member.find('gml:Polygon', namespaces)
+            exterior = polygon.find('.//gml:exterior/gml:LinearRing/gml:posList', namespaces)
+            pos_list = exterior.text.strip().split()
+            coords = [(float(pos_list[i], float(pos_list[i + 1])) for i in range(0, len(pos_list), 2))]
+            surfaces.append(Polygon(coords))
+
+        geometrie = MultiPolygon(surfaces)
+
+        # Créer et enregistrer l'objet ForetPublique
+        foret_publique = ForetPublique(
+            cleabs = cleabs,
+            nature=nature,
+            toponyme=toponyme,
+            statut_du_toponyme=statut_du_toponyme,
+            importance=importance,
+            date_creation=date_creation,
+            date_modification=date_modification,
+            date_de_confirmation=date_de_confirmation,
+            sources=sources,
+            identifiants_sources=identifiants_sources,
+            methode_d_acquisition_planimetrique=methode_d_acquisition_planimetrique,
+            precision_planimetrique=precision_planimetrique
+
+        )
+
+        foret_publique.save()

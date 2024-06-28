@@ -22,7 +22,7 @@ class ForetPublique(models.Model):
     cleabs = models.CharField(max_length=255, unique=True)
     nature = models.CharField(max_length=255)
     toponyme = models.CharField(max_length=255)
-    statut_du_topponyme = models.CharField(max_length=255)
+    statut_du_toponyme = models.CharField(max_length=255)
     importance = models.IntegerField()
     date_creation = models.IntegerField()
     date_modification = models.DateTimeField()
@@ -35,18 +35,3 @@ class ForetPublique(models.Model):
 
     def __str__(self):
         return self.toponyme
-    
-class Natura(models.Model):
-    nom = models.CharField(max_length=100)
-    difficulte = models.CharField(max_length=1)
-    distance_parcourue = models.FloatField()
-    duree_minutes_total = models.IntegerField()
-    altitude_min = models.IntegerField()
-    altitude_max = models.IntegerField()
-    location_lon = models.FloatField(null=True, blank=True)
-    location_lat = models.FloatField(null=True, blank=True)
-    is_ouvert = models.CharField(max_length=3)
-    zone_translations_item_nom = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.nom
