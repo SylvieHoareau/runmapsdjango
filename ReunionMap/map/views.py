@@ -68,12 +68,19 @@ def forest_view(request):
             xmlns:ogc="http://www.opengis.net/ogc"
             xmlns:gml="http://www.opengis.net/gml/3.2">
             <wfs:Query typeNames="BDTOPO_V3:foret_publique">
-                <ogc: Filter>
-                    <ogc: PropertyIsEqualTo>
-                        <ogc: PropertyName>code_insee</PropertyName>
-                        <ogc: Literal>974</Literal>
+                <ogc:Filter>
+                    <ogc:PropertyIsEqualTo>
+                        <ogc:PropertyName>code_insee</PropertyName>
+                        <ogc:Literal>974</Literal>
                     </ogc:PropertyIsEqualTo>
                     <ogc:PropertyIsBetween>
+                        <ogc:PropertyName>cleabs</ogc:PropertyName>
+                        <ogc:LowerBoundary>
+                            <ogc:Literal>FORETPUB0000002204078442</ogc:Literal>
+                        </ogc:LowerBoundary>
+                        <ogc:UpperBoundary>
+                            <ogc:Literal>FORETPUB0000002204078551</ogc:Literal>
+                        </ogc:UpperBoundary>
                     </ogc:PropertyIsBetween>
                 </ogc:Filter>
             </wfs:Query>
@@ -85,27 +92,21 @@ def forest_view(request):
         response = requests.get(url, data=xml_filter, headers=headers)
         response.raise_for_status() # Vérifie si la requête a réussi
         api_data = response.json().get('features', [])
+        # Affichage du contenu de la réponse pour le débogage
+        #print("Contenu de la réponse de l'API :", response.text)   
+    except json.JSONDecodeError:
+        print(f"Erreur : la réponse de l'API n'est pas en format JSON : {e}")
+        api_data = []
     except requests.exceptions.RequestException as e:
         print(f"Erreur lors de la récupération des données de l'API : {e}")
         api_data = []
-    # response = requests.get(api_url)
-    # data = response.json()['results']
-
-    # Debug : Afficher les données dans la console
-    # print(data)
-
-    # Vérifier les données dans la vie jSON
-    #return JsonResponse(data, safe=False)
-
-    # return render(request, 'map/map.html', {'data': data})
 
     # Récupérer les randonnées depuis le modèle Randonnée
-    forests = ForetPublique.objects.all()
+    forests = ForetPublique.objects.filter(cleabs__gte="FORETPUB0000002204078442", cleabs__lte="FORETPUB0000002204078551")
     forests_data = list(forests.values())
 
     # Ajouter les données de l'API aux données du modèle Randonnee
     combined_data = forests_data + api_data
-
     # Convertir les données combinées en JSON
     combined_data_json = json.dumps(combined_data)
 
