@@ -42,6 +42,7 @@
         }
       }
     </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-forest-100 font-sans">
   <nav class="bg-forest-700 text-white p-4 shadow-lg" role="navigation" aria-label="main navigation">
@@ -60,7 +61,7 @@
       <p>Source : IGN - BD TOPO Version 3 </p>
   
       <!--Debug : Afficher les données JSON-->
-      <pre id="data-json" style="display:none;">{{ data|safe }}</pre>
+      <!-- <pre id="data-json">{{ data|escapejs }}</pre> -->
     </main>
     <script>
         var map = L.map('map').setView([-21.115141, 55.536384], 10);
@@ -70,16 +71,122 @@
         }).addTo(map);
 
         // Données des randonnées passées par Django
-        var dataElement = document.querySelector('#data-json');
-        var data = JSON.parse(dataElement.textContent);
+        // var dataElement = document.querySelector('#data-json');
+        // var data = JSON.parse(dataElement.textContent);
 
-        data.forEach(function(item) {
-          if (item.geometry && item.geometry.coordinates) {
-            var coordinates = item.geomatry.coordinates;
-            var lat = coordinates[1];
-            var lng = coordinates[0];
-            L.marker([lat, lng]).addTo(map);
-          }
+        // const styleFeature = (feature) => {
+        //   
+        // }
+
+        // data.forEach(function(item) {
+        //   if (item.geometry && item.geometry.coordinates) {
+        //     var coordinates = item.geometry.coordinates[0].map((coord) => {
+        //       return [coord[1], coord[0]];
+        //     });
+        //     L.polygon(coordinates, styleFeature()).addTo(map);
+        //   }
+        // });
+
+        $(document).ready(function() {
+          var IGN_CLEF = "{{ IGN_CLEF }}";
+
+          var data = JSON.parse('{{ data|escapejs }}'); // Récupérer les données JSON passées à Django
+
+          // Identifiants cleabs spécifiques
+          var cleabs = [
+            "FORETPUB0000002204078552",
+            "FORETPUB0000002204078551",
+            "FORETPUB0000002204078549",
+            "FORETPUB0000002204078547",
+            "FORETPUB0000002204078546",
+            "FORETPUB0000002204078545",
+            "FORETPUB0000002204078544",
+            "FORETPUB0000002204078543",
+            "FORETPUB0000002204078540",
+            "FORETPUB0000002204078538",
+            "FORETPUB0000002204078537",
+            "FORETPUB0000002204078536",
+            "FORETPUB0000002204078535",
+            "FORETPUB0000002204078529",
+            "FORETPUB0000002204078528",
+            "FORETPUB0000002204078527",
+            "FORETPUB0000002204078526",
+            "FORETPUB0000002204078525",
+            "FORETPUB0000002204078524",
+            "FORETPUB0000002204078523",
+            "FORETPUB0000002204078522",
+            "FORETPUB0000002204078521",
+            "FORETPUB0000002204078520",
+            "FORETPUB0000002204078519",
+            "FORETPUB0000002204078518",
+            "FORETPUB0000002204078517",
+            "FORETPUB0000002204078516",
+            "FORETPUB0000002204078515",
+            "FORETPUB0000002204078514",
+            "FORETPUB0000002204078513",
+            "FORETPUB0000002204078512",
+            "FORETPUB0000002204078511",
+            "FORETPUB0000002204078510",
+            "FORETPUB0000002204078509",
+            "FORETPUB0000002204078508",
+            "FORETPUB0000002204078506",
+            "FORETPUB0000002204078504",
+            "FORETPUB0000002204078503",
+            "FORETPUB0000002204078501",
+            "FORETPUB0000002204078500",
+            "FORETPUB0000002204078499",
+            "FORETPUB0000002204078498",
+            "FORETPUB0000002204078469",
+            "FORETPUB0000002204078468",
+            "FORETPUB0000002204078459",
+            "FORETPUB0000002204078458",
+            "FORETPUB0000002204078457",
+            "FORETPUB0000002204078456",
+            "FORETPUB0000002204078454",
+            "FORETPUB0000002204078453",
+            "FORETPUB0000002204078452",
+            "FORETPUB0000002204078451",
+            "FORETPUB0000002204078450",
+            "FORETPUB0000002204078449",
+            "FORETPUB0000002204078448",
+            "FORETPUB0000002204078447",
+            "FORETPUB0000002204078446",
+            "FORETPUB0000002204078445",
+            "FORETPUB0000002204078444",
+            "FORETPUB0000002204078443",
+            "FORETPUB0000002204078442",
+            "FORETPUB0000002204078441",
+            "FORETPUB0000002204078440",
+            "FORETPUB0000002204078439",
+            "FORETPUB0000002204078438"
+          ]
+
+          var cql_filter = cleabs.map(id => `'${id}'`).join(',');
+
+          var url = `https://wxs.ign.fr/${IGN_CLEF}/geoportail/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=BDTOPO_V3:foret_publique&outputFormat=application/json&srsName=EPSG:4326&CQL_FILTER=cleabs%20IN%20(${cql_filter})`;
+
+          $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(data) {
+              // Les données sont déjà au format JSON
+              console.log("Données reçues du flux WFS IGN:", data);
+
+              L.geoJSON(data, {
+                style: function(feature) {
+                  return {
+                    color: "#006400",
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.7
+                  }
+                }
+              }).addTo(map);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("Erreur lors de la récupération des données WFS : " + errorThrown);
+            }
+          });
         });
     </script>
   

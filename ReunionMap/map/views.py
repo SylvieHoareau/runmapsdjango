@@ -6,6 +6,7 @@ from .models import Randonnee, ForetPublique
 from django.core.serializers import serialize
 from django.http import JsonResponse
 from django.contrib.gis.geos import Polygon, MultiPolygon
+from django.conf import settings
 import xml.etree.ElementTree as ET
 
 # Create your views here.
@@ -55,45 +56,100 @@ def rando_view(request):
 
 def forest_view(request):
     # Logique spécifique pour la page "forest"
- # URL de l'API
-    url = "https://data.geopf.fr/wfs/ows?SERVICE=WFS&TYPENAMES=BDTOPO_V3:foret_publique&REQUEST=GetFeature&VERSION=2.0.0"
-    headers = {
-        'Content-Type': 'application/xml'
-    }
+    # Récupérer IGN_CLEF depuis les paramètres
+    ign_clef = settings.IGN_CLEF
 
-    # Ajout d'un filtre pour récupérer uniquement les données pour La Réunion (code INSEE)
-    xml_filter = """
-        <wfs:GetFeature service="WFS" version="2.0.0"
-            xmlns:wfs="http://www.opengis.net/wfs/2.0"
-            xmlns:ogc="http://www.opengis.net/ogc"
-            xmlns:gml="http://www.opengis.net/gml/3.2">
-            <wfs:Query typeNames="BDTOPO_V3:foret_publique">
-                <ogc:Filter>
-                    <ogc:PropertyIsEqualTo>
-                        <ogc:PropertyName>code_insee</PropertyName>
-                        <ogc:Literal>974</Literal>
-                    </ogc:PropertyIsEqualTo>
-                    <ogc:PropertyIsBetween>
-                        <ogc:PropertyName>cleabs</ogc:PropertyName>
-                        <ogc:LowerBoundary>
-                            <ogc:Literal>FORETPUB0000002204078442</ogc:Literal>
-                        </ogc:LowerBoundary>
-                        <ogc:UpperBoundary>
-                            <ogc:Literal>FORETPUB0000002204078551</ogc:Literal>
-                        </ogc:UpperBoundary>
-                    </ogc:PropertyIsBetween>
-                </ogc:Filter>
-            </wfs:Query>
-        </wfs:GetFeature>
-    """
+# Cleabs spécifiques
+    cleabs = [
+            "FORETPUB0000002204078552",
+            "FORETPUB0000002204078551",
+            "FORETPUB0000002204078549",
+            "FORETPUB0000002204078547",
+            "FORETPUB0000002204078546",
+            "FORETPUB0000002204078545",
+            "FORETPUB0000002204078544",
+            "FORETPUB0000002204078543",
+            "FORETPUB0000002204078540",
+            "FORETPUB0000002204078538",
+            "FORETPUB0000002204078537",
+            "FORETPUB0000002204078536",
+            "FORETPUB0000002204078535",
+            "FORETPUB0000002204078529",
+            "FORETPUB0000002204078528",
+            "FORETPUB0000002204078527",
+            "FORETPUB0000002204078526",
+            "FORETPUB0000002204078525",
+            "FORETPUB0000002204078524",
+            "FORETPUB0000002204078523",
+            "FORETPUB0000002204078522",
+            "FORETPUB0000002204078521",
+            "FORETPUB0000002204078520",
+            "FORETPUB0000002204078519",
+            "FORETPUB0000002204078518",
+            "FORETPUB0000002204078517",
+            "FORETPUB0000002204078516",
+            "FORETPUB0000002204078515",
+            "FORETPUB0000002204078514",
+            "FORETPUB0000002204078513",
+            "FORETPUB0000002204078512",
+            "FORETPUB0000002204078511",
+            "FORETPUB0000002204078510",
+            "FORETPUB0000002204078509",
+            "FORETPUB0000002204078508",
+            "FORETPUB0000002204078506",
+            "FORETPUB0000002204078504",
+            "FORETPUB0000002204078503",
+            "FORETPUB0000002204078501",
+            "FORETPUB0000002204078500",
+            "FORETPUB0000002204078499",
+            "FORETPUB0000002204078498",
+            "FORETPUB0000002204078469",
+            "FORETPUB0000002204078468",
+            "FORETPUB0000002204078459",
+            "FORETPUB0000002204078458",
+            "FORETPUB0000002204078457",
+            "FORETPUB0000002204078456",
+            "FORETPUB0000002204078454",
+            "FORETPUB0000002204078453",
+            "FORETPUB0000002204078452",
+            "FORETPUB0000002204078451",
+            "FORETPUB0000002204078450",
+            "FORETPUB0000002204078449",
+            "FORETPUB0000002204078448",
+            "FORETPUB0000002204078447",
+            "FORETPUB0000002204078446",
+            "FORETPUB0000002204078445",
+            "FORETPUB0000002204078444",
+            "FORETPUB0000002204078443",
+            "FORETPUB0000002204078442",
+            "FORETPUB0000002204078441",
+            "FORETPUB0000002204078440",
+            "FORETPUB0000002204078439",
+            "FORETPUB0000002204078438"
+          ]
+
+    # Contruire le filtre CQL
+    cql_filter = ','.join([f"'{id}'" for id in cleabs])
+
+    # URL de l'API IGN WFS
+    url = f"https://wxs.ign.fr/{ign_clef}/geoportail/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=BDTOPO_V3:foret_publique&outputFormat=application/json&srsName=EPSG:4326&CQL_FILTER=cleabs%20IN%20({cql_filter})"
+
+
+    # En-tête nécessaires pour la requête GET
+    headers = {
+        'Content-Type': 'application/json'
+    }
     
     # Récupérer les données de l'API
     try:
-        response = requests.get(url, data=xml_filter, headers=headers)
+        # Utilisez requests.post pour envoyer le filtre XML
+        response = requests.get(url, headers=headers)
         response.raise_for_status() # Vérifie si la requête a réussi
-        api_data = response.json().get('features', [])
         # Affichage du contenu de la réponse pour le débogage
         #print("Contenu de la réponse de l'API :", response.text)   
+
+        api_data = response.json().get('features', [])
+       
     except json.JSONDecodeError:
         print(f"Erreur : la réponse de l'API n'est pas en format JSON : {e}")
         api_data = []
@@ -101,16 +157,18 @@ def forest_view(request):
         print(f"Erreur lors de la récupération des données de l'API : {e}")
         api_data = []
 
-    # Récupérer les randonnées depuis le modèle Randonnée
-    forests = ForetPublique.objects.filter(cleabs__gte="FORETPUB0000002204078442", cleabs__lte="FORETPUB0000002204078551")
+    # Récupérer les données des forêts depuis le modèle ForetPublique
+    forests = ForetPublique.objects.all()
     forests_data = list(forests.values())
 
-    # Ajouter les données de l'API aux données du modèle Randonnee
+    # Ajouter les données de l'API aux données du modèle ForetPublique
     combined_data = forests_data + api_data
     # Convertir les données combinées en JSON
     combined_data_json = json.dumps(combined_data)
 
-    return render(request, 'map/forest.html',  { 'data': combined_data_json})
+    #print("combined_data_json : ", combined_data_json) # Debug: afficher les données dans la console
+
+    return render(request, 'map/forest.html',  { 'data': combined_data_json, 'IGN_CLEF': ign_clef})
 
 # def parse_xml_and_save_to_db(xml_file_path):
 #     if not xml_file_path:

@@ -27,6 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
 
+# Clé IGN
+IGN_CLEF = config('IGN_CLEF')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
