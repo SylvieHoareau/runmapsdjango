@@ -165,6 +165,19 @@
 
           var url = `https://wxs.ign.fr/${IGN_CLEF}/geoportail/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=BDTOPO_V3:foret_publique&outputFormat=application/json&srsName=EPSG:4326&CQL_FILTER=cleabs%20IN%20(${cql_filter})`;
 
+          const createPopupContent = (properties) => {
+            return `
+              <strong>Toponyme :</strong> ${properties.toponyme}<br>
+              <strong>Nature :</strong> ${properties.nature}<br>
+              <strong>Statut :</strong> ${properties.statut_du_toponyme}<br>
+              <strong>Importance :</strong> ${properties.importance}<br>
+              <strong>Date de création :</strong> ${properties.date_creation}<br>
+              <strong>Sources :</strong> ${properties.sources}<br>
+              <strong>Méthode d'acquisition :</strong> ${properties.methode_d_acquision_pplaimetrique}<br>
+              <strong>Précision planimétrique :</strong> ${properties.precision_planimetrique}<br>
+            `;
+          }
+
           $.ajax({
             url: url,
             type: 'GET',
@@ -179,6 +192,11 @@
                     weight: 2,
                     opacity: 1,
                     fillOpacity: 0.7
+                  }
+                },
+                onEachFeature: function(feature, layer) {
+                  if (feature.properties) {
+                    layer.bindPopup(createPopupContent(feature.properties));
                   }
                 }
               }).addTo(map);
