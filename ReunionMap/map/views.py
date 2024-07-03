@@ -203,7 +203,7 @@ def forest_view(request):
         print(f"Erreur lors de la récupération des données de l'API (commune) : {e}")
         commune_data = []
 
-      # Récupérer les données des forêts depuis le modèle ForetPublique
+    # Récupérer les données des forêts depuis le modèle ForetPublique
     forests = ForetPublique.objects.all()
     forest_data_db = list(forests.values())
 

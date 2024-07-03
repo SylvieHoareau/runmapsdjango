@@ -162,35 +162,35 @@
           ]
 
           var communes = [
-            97401, // Les Avirons
-            97402, // Bras Panon
-            97403, // Entre-Deux
-            97404, // Etang-Salé
-            97405, // Petite-Ile
-            97406, // La Plaine des Palmistes
-            97407, // Le Port
-            97408, // La Possession
-            97409, // Saint-André
-            97410, // Saint-Benoît
-            97411, // Saint-Denis
-            97412, // Saint-Joseph
-            97413, // Saint-Leu
-            97414, // Saint-Louis
-            97415, // Saint-Paul
-            97416, // Saint-Pierre
-            97417, // Saint-Philippe
-            97418, // Sainte-Marie
-            97419, // Sainte-Rose
-            97420, // Sainte-Suzanne
-            97421, // Salazie
-            97422, // Le Tampon
-            97423, // Les Trois-Bassins
-            97424 // Cilaos
+            { code: 97401, nom: "Les Avirons" }, 
+            { code:97402, nom: "Bras Panon" }, 
+            { code:97403, nom: "Entre-Deux" }, 
+            { code:97404, nom: "Etang-Salé" }, 
+            { code:97405, nom: "Petite-Ile" }, 
+            { code:97406, nom: "La Plaine des Palmistes" }, 
+            { code:97407, nom: "Le Port" },  
+            { code:97408, nom: "La Possession" }, 
+            { code:97409, nom: "Saint-André" },  
+            { code:97410, nom: "Saint-Benoît" }, 
+            { code:97411, nom: "Saint-Denis" },
+            { code:97412, nom: "Saint-Joseph" }, 
+            { code:97413, nom: "Saint-Leu" }, 
+            { code:97414, nom: "Saint-Louis" }, 
+            { code:97415, nom: "Saint-Paul" }, 
+            { code:97416, nom: "Saint-Pierre" }, 
+            { code:97417, nom: "Saint-Philippe" }, 
+            { code:97418, nom: "Sainte-Marie" }, 
+            { code:97419, nom: "Sainte-Rose" },
+            { code:97420, nom: "Sainte-Suzanne" }, 
+            { code:97421, nom: "Salazie" }, 
+            { code:97422, nom: "Le Tampon" }, 
+            { code:97423, nom: "Les Trois-Bassins" },  
+            { code:97424, nom: "Cilaos" } 
 
           ]
 
           var cql_filter_forest = cleabs.map(id => `'${id}'`).join(',');
-          var cql_filter_commune = communes.map(id => `'${id}'`).join(',');
+          var cql_filter_commune = communes.map(commune => commune.code).join(',');
 
           var communeLayerUrl = `https://wxs.ign.fr/${IGN_CLEF}/geoportail/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=ADMINEXPRESS-COG.LATEST:commune&outputFormat=application/json&srsName=EPSG:4326&CQL_FILTER=insee_com%20IN%20(${cql_filter_commune})`;
           var forestsLayerUrl = `https://wxs.ign.fr/${IGN_CLEF}/geoportail/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=BDTOPO_V3:foret_publique&outputFormat=application/json&srsName=EPSG:4326&CQL_FILTER=cleabs%20IN%20(${cql_filter_forest})`;
@@ -208,12 +208,12 @@
             `;
           }
 
-          const createCommunePopupContent = (properties) => {
-            return `
-              <strong>Nom de la commune : </strong> ${properties.nom}<br>
-              <strong>Code INSEE :</strong> ${properties.insee_com}<br>
-            `;
-          }
+          // const createCommunePopupContent = (properties) => {
+          //   return `
+          //     <strong>Nom de la commune : </strong> ${properties.nom}<br>
+          //     <strong>Code INSEE :</strong> ${properties.insee_com}<br>
+          //   `;
+          // }
 
           function addLayerToMap(url, style, onEachFeature) {
             $.ajax({
@@ -227,6 +227,13 @@
                   style: style,
                   onEachFeature: onEachFeature
                 }).addTo(map);
+
+                // Amener les forêts vers l'avant
+                map.eachLayer(function(layer) {
+                  if (layer.options && layer.options.opacity !== 0) {
+                    layer.bringToFront();
+                  }
+                })
               },
               error: function(jqXHR, textStatus, errorThrown) {
                   console.log("Erreur lors de la récupération des données WFS : " + errorThrown);
@@ -234,6 +241,7 @@
             });
           }
 
+          // Ajouter la couche forêt
           addLayerToMap(forestsLayerUrl, function(feature) {
             return {
               color: "#006400",
@@ -247,18 +255,27 @@
             }
           });
 
-          addLayerToMap(communeLayerUrl, function(feature) {
+            // Ajouter la couche commune
+            addLayerToMap(communeLayerUrl, function(feature) {
             return {
               color: "#0000FF",
               weight: 1,
               opacity: 0.5,
               fillOpacity: 0.1
             }
-          }, function(feature, layer) {
-            if (feature.properties) {
-              layer.bindPopup(createCommunePopupContent(feature.properties));
-            }
-          });
+          }, 
+          // function(feature, layer) {
+          //   if (feature.properties) {
+          //     // Ajouter directement le texte sur la carte pour les communes
+          //     var nomCommune = communes.find(c => c.code == feature.properties.insee_com);
+          //     if (nomCommune) {
+          //       var text = `${nomCommune}`;
+          //       L.marker(layer.getBounds().getCenter(), { opacity: 0}).bindTooltip(text).addTo(map);
+          //     }
+          //   }
+          );
+
+        
           
         });
     </script>
