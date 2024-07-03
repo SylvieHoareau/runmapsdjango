@@ -17,7 +17,6 @@ class Randonnee(models.Model):
     def __str__(self):
         return self.nom
     
-
 class ForetPublique(models.Model):
     cleabs = models.CharField(max_length=255, unique=True)
     nature = models.CharField(max_length=255)
@@ -35,3 +34,20 @@ class ForetPublique(models.Model):
 
     def __str__(self):
         return self.toponyme
+    
+class Commune(models.Model):
+    id = models.AutoField(primary_key=True)
+    nom = models.CharField(max_length=100)
+    nom_m = models.CharField(max_length=100)
+    insee_com = models.IntegerField( unique=True)
+    statut = models.CharField(max_length=100)
+    population = models.IntegerField()
+    insee_can = models.IntegerField()
+    insee_arr = models.IntegerField()
+    insee_dep = models.IntegerField()
+    insee_reg = models.IntegerField()
+    insee_epci = models.IntegerField()
+    geometrie = gis_models.MultiPolygonField(srid=4326)
+
+    def __str__(self):
+        return self.nom
