@@ -164,8 +164,8 @@ def forest_view(request):
 
   
     # Logs pour le débogage
-    print("URL for forest data:", forest_url)
-    print("URL for commune data:", commune_url)
+    # print("URL for forest data:", forest_url)
+    # print("URL for commune data:", commune_url)
 
       # En-tête nécessaires pour la requête GET
     headers = {
@@ -230,13 +230,13 @@ def test_single_commune():
     cql_filter__single_commune = f"code_insee={single_commune}"
     commune_url = f"https://wxs.ign.fr/{ign_clef}/geoportail/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=ADMINEXPRESS-COG.LATEST:commune&outputFormat=application/json&srsName=EPSG:4326&CQL_FILTER={cql_filter__single_commune}"
 
-    print("URL for single commune data:", commune_url)
+    # print("URL for single commune data:", commune_url)
 
     try:
         response_commune = requests.get(commune_url)
         response_commune.raise_for_status()
         commune_data = response_commune.json().get('features', [])
-        print("Commune data:", commune_data)
+        # print("Commune data:", commune_data)
     except (json.JSONDecodeError, requests.exceptions.RequestException) as e:
         print(f"Erreur lors de la récupération des données de l'API (commune) : {e}")
 

@@ -69,7 +69,7 @@
       <p>Source : Les principaux circuits de randonnées de La Réunion - SOUBIK - Système d'Information Touristique (SIT) de l'île de La Réunion </p>
   
       <!--Debug : Afficher les données JSON-->
-      <pre>{{ data|safe }}</pre>
+      <!-- <pre>{{ data|safe }}</pre> -->
     </main>
   
     <!--Incorporer les données JSON dans un script-->
@@ -149,23 +149,23 @@
           let level;
           switch (grade) {
             case '1':
-              color = 'green'; // Facile
+              color = '#34ac2f'; // Facile (Vert)
               level = 'facile';
               break;
             case '2':
-              color = 'orange'; // Moyenne
+              color = '#cb8429'; // Moyenne (Orange)
               level = 'moyenne';
               break;
             case '3':
-              color = 'red'; // Difficile
+              color = '#cd354c'; // Difficile (Rouge)
               level = 'difficile';
               break;
             case '4':
-              color = 'black'; // Très difficile
+              color = '#3c3c3c'; // Très difficile (Noir)
               level = 'très difficile';
               break;
             default:
-              color = 'blue'; // Autre
+              color = '#2981ca'; // Autre (Bleu)
               level = 'autre';
           }
 

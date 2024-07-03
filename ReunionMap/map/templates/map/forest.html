@@ -208,20 +208,13 @@
             `;
           }
 
-          // const createCommunePopupContent = (properties) => {
-          //   return `
-          //     <strong>Nom de la commune : </strong> ${properties.nom}<br>
-          //     <strong>Code INSEE :</strong> ${properties.insee_com}<br>
-          //   `;
-          // }
-
           function addLayerToMap(url, style, onEachFeature) {
             $.ajax({
               url: url,
               type: 'GET',
               success: function(data) {
                 // Les données sont déjà au format JSON
-                console.log("Données reçues du flux WFS IGN:", data);
+                // console.log("Données reçues du flux WFS IGN:", data);
 
                 L.geoJSON(data, {
                   style: style,
