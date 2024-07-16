@@ -7,7 +7,7 @@ from django.core.serializers import serialize
 from django.http import JsonResponse
 from django.contrib.gis.geos import Polygon, MultiPolygon
 from django.conf import settings
-from .utils import get_argis_token
+from .utils import get_arcgis_token
 
 # Create your views here.
 
@@ -225,33 +225,33 @@ def forest_view(request):
     return render(request, 'map/forest.html',  { 'data': combined_data_json, 'IGN_CLEF': ign_clef})
 
 # Débogage avec un seul code INSEE pour isoler le problème
-def test_single_commune():
-    ign_clef = settings.IGN_CLEF
-    single_commune = 97401
-    cql_filter__single_commune = f"code_insee={single_commune}"
-    commune_url = f"https://wxs.ign.fr/{ign_clef}/geoportail/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=ADMINEXPRESS-COG.LATEST:commune&outputFormat=application/json&srsName=EPSG:4326&CQL_FILTER={cql_filter__single_commune}"
+# def test_single_commune():
+#     ign_clef = settings.IGN_CLEF
+#     single_commune = 97401
+#     cql_filter__single_commune = f"code_insee={single_commune}"
+#     commune_url = f"https://wxs.ign.fr/{ign_clef}/geoportail/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=ADMINEXPRESS-COG.LATEST:commune&outputFormat=application/json&srsName=EPSG:4326&CQL_FILTER={cql_filter__single_commune}"
 
     # print("URL for single commune data:", commune_url)
 
-    try:
-        response_commune = requests.get(commune_url)
-        response_commune.raise_for_status()
-        commune_data = response_commune.json().get('features', [])
-        # print("Commune data:", commune_data)
-    except (json.JSONDecodeError, requests.exceptions.RequestException) as e:
-        print(f"Erreur lors de la récupération des données de l'API (commune) : {e}")
+    # try:
+    #     response_commune = requests.get(commune_url)
+    #     response_commune.raise_for_status()
+    #     commune_data = response_commune.json().get('features', [])
+    #     # print("Commune data:", commune_data)
+    # except (json.JSONDecodeError, requests.exceptions.RequestException) as e:
+    #     print(f"Erreur lors de la récupération des données de l'API (commune) : {e}")
 
 # Appelez cette fonction pour tester avec un seul code INSEE
-test_single_commune()
+# test_single_commune()
 
-def acrmap_view(request):
-    username = 'username'
-    password = 'password'
+def arcmap_view(request):
+    username = settings.ARCGIS_USERNAME
+    password = settings.ARCGIS_PASSWORD
 
     try:
-        token = get_argis_token(username, password)
+        token = get_arcgis_token(username, password)
     except Exception as e:
-        return render(request, 'maps/arcmap.html', {'error': str(e)})
+        return render(request, 'map/arcmap.html', {'error': str(e)})
 
     # URL de l'API REST d'ArcGIS pour La Réunion
     url_arcgis = 'https://services.arcgis.com/arcgis/rest/services/ServiceName/FeatureServer/0/query'
@@ -259,7 +259,7 @@ def acrmap_view(request):
     # Paramètres de la requête
     params = {
         'where': '1=1',
-        'outfields': '*',
+        'outFields': '*',
         'f': 'json',
         'token': token
     }
@@ -267,4 +267,4 @@ def acrmap_view(request):
     response = requests.get(url_arcgis, params=params)
     data = response.json() if response.status_code == 200 else {}
 
-    return render(request, 'maps/arcmap.html', {'data': data})
+    return render(request, 'map/arcmap.html', {'data': data, 'token' : token})

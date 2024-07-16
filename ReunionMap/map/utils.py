@@ -2,7 +2,7 @@
 
 import requests
 
-def get_argis_token(username, password):
+def get_arcgis_token(username, password):
     token_url = 'https://www.arcgis.com/sharing/rest/generateToken'
     params = {
         'f': 'json',

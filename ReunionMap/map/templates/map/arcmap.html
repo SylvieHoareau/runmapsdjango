@@ -25,32 +25,34 @@
     <h1>Carte du relief</h1>
     <div id="map"></div>
     <script>
-        // Initailisation de la carte
+        // Initialisation de la carte
         var map = L.map('map').setView([-21.1151, 55.5364], 10);
 
         // Ajouter une couche de tuiles de base
-        L.tielLayer('hhtps://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
         }).addTo(map);
 
-        const accessToken = "";
+        const accessToken = "{{ token }}"; // Utiliser le token depuis Django
 
-        const basemapEnum = "arcgis/streets";
+        const basemapEnum = "arcgis/topographic";
 
         L.esri.Vector.vectorBasemapLayer(basemapEnum, {
           token: accessToken
         }).addTo(map);
 
         // Ajouter des marqueurs pour les données récupérées
-        var data = {{ data|safe }};
+        var data = JSON.parse(document.getElementById('data-json').textContent);
         if (data.features) {
           data.features.forEach(function(feature) {
             var coords = feature.geometry.coordinates;
             var properties = feature.properties;
-            L.marker(coord[1], coords[0]).addTo(map)
+            L.marker(coords[1], coords[0]).addTo(map)
               .bindPopup('<b>' + properties.nom + '</b><br />' + properties.description);
           })
         }
     </script>
+    <!-- Charger les données JSON de manière sécurisée -->
+    <script id="data-json" type="application/json">{{ data|safe }}</script>
 </body>
 </html>

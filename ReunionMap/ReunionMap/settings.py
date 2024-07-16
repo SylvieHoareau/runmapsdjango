@@ -12,7 +12,13 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from decouple import config, Csv
+from dotenv import load_dotenv
 import os
+
+load_dotenv() # Charger les variables d'environnement à partir du fichier .env
+
+ARCGIS_USERNAME = os.getenv('ARCGIS_USERNAME')
+ARCGIS_PASSWORD = os.getenv('ARCGIS_PASSWORD')
 
 # Chemin vers les bibliothèques GDAL et GEOS
 os.environ['GDAL_LIBRARY_PATH'] = config('GDAL_LIBRARY_PATH')
