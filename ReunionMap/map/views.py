@@ -7,6 +7,7 @@ from django.core.serializers import serialize
 from django.http import JsonResponse
 from django.contrib.gis.geos import Polygon, MultiPolygon
 from django.conf import settings
+from .utils import get_argis_token
 
 # Create your views here.
 
@@ -243,63 +244,27 @@ def test_single_commune():
 # Appelez cette fonction pour tester avec un seul code INSEE
 test_single_commune()
 
-# def parse_xml_and_save_to_db(xml_file_path):
-#     if not xml_file_path:
-#         return []
-    
-#     tree = ET.parse(xml_file_path)
-#     root = tree.getRoot()
+def acrmap_view(request):
+    username = 'username'
+    password = 'password'
 
-#     namespaces = {
-#         'wfs': 'http://www.opengis.net/wf/2.0', 
-#         'gml': 'http://www.opengis/gml/3.2',
-#         'BDTOPO_V3': 'https://data.geopf.fr/wfs/ows?SERVICE=WFS&TYPENAMES=BDTOPO_V3:foret_publique&REQUEST=GetFeature&VERSION=2.0.0'
-#     }
+    try:
+        token = get_argis_token(username, password)
+    except Exception as e:
+        return render(request, 'maps/arcmap.html', {'error': str(e)})
 
-#     for member in root.findall('wfs:member', namespaces):
-#         foret = member.find('BDTOPO_V3:foret_publique', namespaces)
+    # URL de l'API REST d'ArcGIS pour La Réunion
+    url_arcgis = 'https://services.arcgis.com/arcgis/rest/services/ServiceName/FeatureServer/0/query'
 
-#         cleabs = foret.find('BDTOPO_V3:cleabs', namespaces).text
-#         nature = foret.find('BDTOPO_V3:nature', namespaces).text
-#         toponyme = foret.find('BDTOPO_V3:toponyme', namespaces).text
-#         statut_du_toponyme = foret.find('BDTOPO_V3:statut_du_toponyme', namespaces).text
-#         importance = int(foret.find('BDTOPO_V3:importance', namespaces).text)
-#         date_creation = foret.find('BDTOPO_V3:date_creation', namespaces).text
-#         date_modification = foret.find('BDTOPO_V3:date_modification', namespaces).text
-#         date_de_confirmation = foret.find('BDTOPO_V3:date_de_confirmation', namespaces).text
-#         sources = foret.find('BDTOPO_V3:sources', namespaces).text
-#         identifiants_sources = foret.find('BDTOPO_V3:identifiants_sources', namespaces).text
-#         methode_d_acquisition_planimetrique = foret.find('BDTOPO_V3:methode_d_acquisition_planimetrique', namespaces).text
-#         precision_planimetrique = float(foret.find('BDTOPO_V3:precision_planimetrique', namespaces).text)
+    # Paramètres de la requête
+    params = {
+        'where': '1=1',
+        'outfields': '*',
+        'f': 'json',
+        'token': token
+    }
 
-#         # Geometrie
-#         multi_surface = foret.find('.//gml:MultiSurface', namespaces)
-#         surfaces = []
+    response = requests.get(url_arcgis, params=params)
+    data = response.json() if response.status_code == 200 else {}
 
-#         for surface_member in multi_surface.findall('gml:surfaceMember', namespaces):
-#             polygon = surface_member.find('gml:Polygon', namespaces)
-#             exterior = polygon.find('.//gml:exterior/gml:LinearRing/gml:posList', namespaces)
-#             pos_list = exterior.text.strip().split()
-#             coords = [(float(pos_list[i], float(pos_list[i + 1])) for i in range(0, len(pos_list), 2))]
-#             surfaces.append(Polygon(coords))
-
-#         geometrie = MultiPolygon(surfaces)
-
-#         # Créer et enregistrer l'objet ForetPublique
-#         foret_publique = ForetPublique(
-#             cleabs = cleabs,
-#             nature=nature,
-#             toponyme=toponyme,
-#             statut_du_toponyme=statut_du_toponyme,
-#             importance=importance,
-#             date_creation=date_creation,
-#             date_modification=date_modification,
-#             date_de_confirmation=date_de_confirmation,
-#             sources=sources,
-#             identifiants_sources=identifiants_sources,
-#             methode_d_acquisition_planimetrique=methode_d_acquisition_planimetrique,
-#             precision_planimetrique=precision_planimetrique
-
-#         )
-
-#         foret_publique.save()
+    return render(request, 'maps/arcmap.html', {'data': data})

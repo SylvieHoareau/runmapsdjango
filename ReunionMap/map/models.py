@@ -29,7 +29,7 @@ class ForetPublique(models.Model):
     sources = models.CharField(max_length=255)
     identifiants_sources = models.CharField(max_length=255)
     methode_d_acquisition_planimetrique = models.CharField(max_length=255)
-    precision_plainmetrique = models.FloatField()
+    precision_planimetrique = models.FloatField()
     geometrie = gis_models.MultiPolygonField(srid=4326)
 
     def __str__(self):
